@@ -5,6 +5,9 @@ import gspread
 from google.oauth2.service_account import Credentials
 import sys
 from termcolor import colored, cprint
+import time,os,sys
+
+import pyfiglet
 
 # Standard Google Drive Scope to access files in our google drive.
 
@@ -29,4 +32,33 @@ def get_leaderboard_data():
     scorecard = SHEET.worksheet("scorecard").get_all_values()
     print(scorecard)
 
-get_leaderboard_data()
+
+def typingPrint(text):
+  for character in text:
+    sys.stdout.write(character)
+    sys.stdout.flush()
+    time.sleep(0.05)
+  
+def typingInput(text):
+  for character in text:
+    sys.stdout.write(character)
+    sys.stdout.flush()
+    time.sleep(0.05)
+  value = input()  
+  return value
+
+
+def main():
+    """
+    Starts the game function, requesting users name, calling other function to insert scores
+    """
+    ascii_banner = pyfiglet.figlet_format("Car Racer!!!",font = "slant")
+    print(ascii_banner)
+    username = input(colored("Please enter your name: ",'blue',attrs=['bold']))
+    typingPrint(f'Welcome {username}. \n')
+    start_game = input(colored('Are you ready to play? ','blue',attrs=['bold']))
+
+
+
+
+main()
