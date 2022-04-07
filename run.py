@@ -8,14 +8,15 @@ from google.oauth2.service_account import Credentials
 from termcolor import colored, cprint
 
 # Basic python function
-import time,os,sys 
+import os,sys 
+from sys import exit
 
 # module needed to convert normal text to banner looking heading
 import pyfiglet
 
 # Used to get keystroke as input for race
 
-import msvcrt 
+import keyboard
 
 # Used to calculate time taken to complete the race
 import time 
@@ -34,6 +35,12 @@ CREDS = Credentials.from_service_account_file('creds.json')
 SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('Leader_Board')
+
+def cls():
+    """
+    Clearing Screen to restart the Game or to begin the race.
+    """
+    os.system('cls' if os.name=='nt' else 'clear')
 
 def get_leaderboard_data():
     """
@@ -72,13 +79,50 @@ def main():
     """
     Starts the game function, requesting users name, calling other function to insert scores
     """
-    ascii_banner = pyfiglet.figlet_format("Car Racer!!!",font = "slant") # Game banner with game is loaded
+    ascii_banner = colored(pyfiglet.figlet_format(" Car Racer!!! ",font = "doom"),'white','on_green',attrs=['bold']) # Game banner with game is loaded
     print(ascii_banner)
     username = input(colored("Please enter your name: ",'blue',attrs=['bold'])) # Players username
     typingPrint(f'Hi {username} and welcome to Car Racer \n')
-    start_game = input(colored('Are you ready to play? (Y/N) ','blue',attrs=['bold'])) # Checking with player if they want to start the game.
-    player_car(username)
-    computer_cars()
+    
+    
+
+    while True:
+        try:
+            start_game = input(colored('Are you ready to play? (Y/N) ','blue',attrs=['bold'])) # Checking with player if they want to start the game.
+            if start_game.lower() == 'y':
+                player_car(username)
+                computer_cars()
+                break
+            elif start_game.lower() == "n":
+                end_game()
+                break
+        except:
+            pass
+        print(f'you have enter "{start_game}" which is an invalid input. Please select Y or N')
+     
+
+ 
+def end_game():
+    """
+    Notification to the user that the game as ended or been chosen not to run.
+    """
+    print('Thank you for choosing Car Racer')
+
+    while True:
+            try:
+                restart_game = input(colored('Do you want to restart the game? (Y/N) ','blue',attrs=['bold'])) # Checking with player if they want to start the game.
+                if restart_game.lower() == 'y':
+                    cls()
+                    main()
+                    break
+                elif restart_game.lower() == "n":
+                    print('We sad to see you go. Hope you enjoyed the game')
+                    return False
+                                              
+            except:
+                raise
+            print(f'you have enter "{restart_game}" which is an invalid input. Please select Y or N')
+
 
 
 def road_layout():
