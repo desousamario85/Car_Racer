@@ -11,8 +11,14 @@ from termcolor import colored, cprint
 import time,os,sys 
 
 # module needed to convert normal text to banner looking heading
-import pyfiglet 
+import pyfiglet
 
+# Used to get keystroke as input for race
+
+import msvcrt 
+
+# Used to calculate time taken to complete the race
+import time 
 
 
 # Standard Google Drive Scope to access files in our google drive.
