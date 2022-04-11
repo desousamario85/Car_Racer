@@ -19,7 +19,11 @@ import pyfiglet
 import keyboard
 
 # Used to calculate time taken to complete the race
-import time 
+
+import time
+import curses
+from curses import wrapper
+import requests
 
 
 # Standard Google Drive Scope to access files in our google drive.
@@ -51,7 +55,7 @@ def get_leaderboard_data():
     print(scorecard)
 
 
-def typingPrint(text):
+def typing_print(text):
     """
     Function provides the typing effect in the terminal
     when we wish to use the print command.
@@ -62,7 +66,7 @@ def typingPrint(text):
         sys.stdout.flush()
         time.sleep(0.05)
   
-def typingInput(text):
+def typing_input(text):
     """
     Function provides the typing effect in the terminal.
     when we wish to use the input command.
@@ -77,28 +81,39 @@ def typingInput(text):
 
 def main():
     """
-    Starts the game function, requesting users name, calling other function to insert scores
+    Starts the game function, requesting users name,
+     calling other function to insert scores
     """
+
     ascii_banner = colored(pyfiglet.figlet_format(" Car Racer!!! ",font = "doom"),'white','on_green',attrs=['bold']) # Game banner with game is loaded
     print(ascii_banner)
-    username = input(colored("Please enter your name: ",'blue',attrs=['bold'])) # Players username
-    typingPrint(f'Hi {username} and welcome to Car Racer \n')
+    while True:
+        try:
+            username = input(colored("Please enter your name: ",'blue',attrs=['bold'])) # Players username
+            if username and len(username) >= 3:
+                typing_print(f'Hi {username} and welcome to Car Racer \n')
+                break            
+        except:            
+            raise
+        print(f'Name is either blank or too short. Please try again.')
     
     
 
     while True:
         try:
-            start_game = input(colored('Are you ready to play? (Y/N) ','blue',attrs=['bold'])) # Checking with player if they want to start the game.
+            # Checking with player if they want to start the game.
+            start_game = input(colored('Are you ready to play? (Y/N) ','blue',attrs=['bold'])) 
             if start_game.lower() == 'y':
-                player_car(username)
-                computer_cars()
+                print(f'\n {username}, get ready to race!! \n')                              
+                player_car()
+                random_text()                              
                 break
             elif start_game.lower() == "n":
                 end_game()
                 break
         except:
-            pass
-        print(f'you have enter "{start_game}" which is an invalid input. Please select Y or N')
+            raise
+        print(f'\nYou have enter "{start_game}" which is an invalid input. Please select Y or N')
      
 
  
@@ -130,28 +145,21 @@ def road_layout():
     Building the road layout where the car with drive in
     """
     
-def player_car(data):
+def player_car():
     """
     Defining how the player car look.
-    """
-    print(f'\n {data}, the red car below is yours \n')
-    print(colored("  __/\__ ","red"))
-    print(colored(" O      O","red"))
-    print(colored("  |    |","red"))
-    print(colored("  |    |","red"))
-    print(colored(" O______O","red"))
-    
+    """    
+    print(colored("   |O==O| ","red"))
+    print(colored("   |     \\","red"))
+    print(colored("   |     /","red"))
+    print(colored("   |O==O| ","red"))
 
-def computer_cars():
-    """
-    Defining how the computers cars look.
-    """
-    print("\n The blue car is the computer's car \n")
-    print(colored("  __/\__ ","blue"))
-    print(colored(" O  xx  O","blue"))
-    print(colored("  | xx |","blue"))
-    print(colored("  | xx |","blue"))
-    print(colored(" O______O","blue"))
+def random_text():# randomQuoteAPIURL = 'https://api.quotable.io/random'
+    response = requests.get(url='https://api.quotable.io/random').json()
+    # here everytime we get the new sentence with this API
+    targetText = response["content"]
+
+    return targetText   
 
 
 main()
