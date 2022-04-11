@@ -88,6 +88,25 @@ def typing_input(text):
     return value
 
 
+def compare_text(sourcetext):
+    print(sourcetext)
+    usertext = input()
+    startTime = time.time()
+    while True:
+        try:
+            if sourcetext == usertext:
+                position = 40
+                timeElapsed = max(time.time() - startTime, 1)
+                print(f'First time lapse = {timeElapsed} seconds')
+                player_car(position)
+                break            
+        except:            
+            raise
+        print(f'Text did not match, try again')
+
+
+
+
 def main():
     """
     Starts the game function, requesting users name,
@@ -100,7 +119,7 @@ def main():
         try:
             username = input(colored("Please enter your name: ",'blue',attrs=['bold'])) # Players username
             if username and len(username) >= 3:
-                typing_print(f'Hi {username} and welcome to Car Racer \n')
+                typing_print(f'Hi {username} and welcome to Car Racer \n')                
                 break            
         except:            
             raise
@@ -113,10 +132,13 @@ def main():
             # Checking with player if they want to start the game.
             start_game = input(colored('Are you ready to play? (Y/N) ','blue',attrs=['bold'])) 
             if start_game.lower() == 'y':
-                print(f'\n {username}, get ready to race!! \n')                              
-                player_car()
-                random_text = get_randomtext()      
-                print(random_text)                        
+                print(f'\n {username}, get ready to race!! \n')
+                position = 0 # setting starting point for the car                              
+                player_car(position)
+                
+                random_text = get_randomtext()
+                compare_text(random_text)  
+                                        
                 break
             elif start_game.lower() == "n":
                 end_game()
@@ -155,16 +177,14 @@ def road_layout():
     Building the road layout where the car with drive in
     """
     
-def player_car():
+def player_car(position):
     """
     Defining how the player car look.
     """    
-    print(colored("   |O==O| ","red"))
-    print(colored("   |     \\","red"))
-    print(colored("   |     /","red"))
-    print(colored("   |O==O| ","red"))
 
-
-
+    car = "|o==o>"
+    finish = "||||"
+    
+    print(colored(f'{finish : >81}\n {car: <{position}}{finish : >74}\n {finish : >80}','red'))
 
 main()
