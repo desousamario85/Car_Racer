@@ -54,6 +54,15 @@ def get_leaderboard_data():
     scorecard = SHEET.worksheet("scorecard").get_all_values()
     print(scorecard)
 
+def get_randomtext():
+    """
+    Retrieving random text from 'https://api.quotable.io/random'.
+    This will be text text that the user needs to match.
+    """
+    
+    response = requests.get(url='https://api.quotable.io/random').json()    
+    targetText = response["content"]
+    return targetText 
 
 def typing_print(text):
     """
@@ -106,7 +115,8 @@ def main():
             if start_game.lower() == 'y':
                 print(f'\n {username}, get ready to race!! \n')                              
                 player_car()
-                random_text()                              
+                random_text = get_randomtext()      
+                print(random_text)                        
                 break
             elif start_game.lower() == "n":
                 end_game()
@@ -154,12 +164,7 @@ def player_car():
     print(colored("   |     /","red"))
     print(colored("   |O==O| ","red"))
 
-def random_text():# randomQuoteAPIURL = 'https://api.quotable.io/random'
-    response = requests.get(url='https://api.quotable.io/random').json()
-    # here everytime we get the new sentence with this API
-    targetText = response["content"]
 
-    return targetText   
 
 
 main()
