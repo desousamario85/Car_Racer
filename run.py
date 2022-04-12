@@ -122,9 +122,9 @@ def compare_text(sourcetext ,position ,finishline ,x ,startTime , retries):
 
             break
         else:
-            typing_print("Sorry you have exceed the amount of tries")            
-            typing_print("We hope you enjoyed the game.")
-            typing_print("We are restarting the game")
+            typing_print("Sorry you have exceed the amount of tries. \n")            
+            typing_print("We hope you enjoyed the game. \n")
+            typing_print("We are restarting the game \n")
             time.sleep(5.00)
             cls()
             main()
@@ -139,6 +139,7 @@ def main():
     ascii_banner = colored(pyfiglet.figlet_format(" Car Racer!!! ", font="doom"),
                            'white', 'on_green', attrs=['bold'])  # Game banner with game is loaded
     print(ascii_banner)
+    typing_print(game_instructions)
     while True:
         try:
             username = input(colored("Please enter your name: ",
@@ -155,13 +156,22 @@ def main():
             # Checking with player if they want to start the game.
             start_game = input(
                 colored('Are you ready to play? (Y/N) ', 'blue', attrs=['bold']))
-            if start_game.lower() == 'y':
-                print(f'\n {username}, get ready to race!! \n')
+            if start_game.lower() == 'y':                
+                
+                print(f'\n {username}, get ready to race!! \n')        
+          
+
+                for int in range(3,0,-1):
+                    print(int)
+                    time.sleep(1.00)
+        
+                print(colored("GO!!","green"))
                 position = 0  # setting starting point for the car
                 finishline = 74  # setting position of the middle finish line
                 startTime = time.time()
                 player_car(position, finishline)
-                retries = 0  
+                retries = 0
+                
                 game_play(position ,finishline ,0 ,startTime , retries)
 
                 break
@@ -204,12 +214,16 @@ def end_game():
             f'you have enter "{restart_game}" which is an invalid input. Please select Y or N')
 
 
-def game_instructions():
-    """
-    Explaination on the game rules and how to play the game
+game_instructions ="""
+Welcome to Car Racer
 
-    """
-    typing_print("Test your typing skills by typing out the random text that appears on the screen")
+Test your typing skills by typing out the random text that appears on the screen.
+You have 3 retries in total through out the game, then after the game will end and restart from the beginning
+Good luck!!
+"""
+    
+
+
 
 def player_car(position, finishline):
     """
