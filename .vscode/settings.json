@@ -26,5 +26,8 @@
    "cSpell.words": [
       "CREDS",
       "gspread"
-   ]
+   ],
+   "[python]": {
+      "editor.defaultFormatter": "ms-python.python"
+   }
 }

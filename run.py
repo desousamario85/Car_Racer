@@ -8,7 +8,8 @@ from google.oauth2.service_account import Credentials
 from termcolor import colored, cprint
 
 # Basic python function
-import os,sys 
+import os
+import sys
 from sys import exit
 
 # module needed to convert normal text to banner looking heading
@@ -31,7 +32,7 @@ SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/drive"
-    ]
+]
 
 # Credentials to authenticate to the Leader_Board file
 
@@ -40,11 +41,13 @@ SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('Leader_Board')
 
+
 def cls():
     """
     Clearing Screen to restart the Game or to begin the race.
     """
-    os.system('cls' if os.name=='nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 
 def get_leaderboard_data():
     """
@@ -54,15 +57,17 @@ def get_leaderboard_data():
     scorecard = SHEET.worksheet("scorecard").get_all_values()
     print(scorecard)
 
+
 def get_randomtext():
     """
     Retrieving random text from 'https://api.quotable.io/random'.
     This will be text text that the user needs to match.
     """
-    
-    response = requests.get(url='https://api.quotable.io/random').json()    
+
+    response = requests.get(url='https://api.quotable.io/random').json()
     targetText = response["content"]
-    return targetText 
+    return targetText
+
 
 def typing_print(text):
     """
@@ -74,7 +79,8 @@ def typing_print(text):
         sys.stdout.write(character)
         sys.stdout.flush()
         time.sleep(0.05)
-  
+
+
 def typing_input(text):
     """
     Function provides the typing effect in the terminal.
@@ -84,27 +90,38 @@ def typing_input(text):
         sys.stdout.write(character)
         sys.stdout.flush()
         time.sleep(0.05)
-    value = input()  
+    value = input()
     return value
 
 
-def compare_text(sourcetext):
+def compare_text(sourcetext ,position ,finishline ,x):
     print(sourcetext)
     usertext = input()
     startTime = time.time()
+    try:x
+    except NameError:x = 0
+    print(x)
     while True:
         try:
-            if sourcetext == usertext:
-                position = 40
-                timeElapsed = max(time.time() - startTime, 1)
-                print(f'First time lapse = {timeElapsed} seconds')
-                player_car(position)
-                break            
-        except:            
+            if sourcetext == usertext and  x < 4:
+                
+                print(x)
+                x = x + 1                              
+                print(x)    
+                position += 15                   
+                timeElapsed = time.time() - startTime
+                print(f'Current time lapse = {timeElapsed} seconds')                                      
+                player_car(position ,finishline)
+                game_play(position ,finishline,x)
+            else:
+                cls()
+                print(racecomplete)
+                break                                         
+                
+        except:
             raise
         print(f'Text did not match, try again')
-
-
+        break
 
 
 def main():
@@ -113,42 +130,48 @@ def main():
      calling other function to insert scores
     """
 
-    ascii_banner = colored(pyfiglet.figlet_format(" Car Racer!!! ",font = "doom"),'white','on_green',attrs=['bold']) # Game banner with game is loaded
+    ascii_banner = colored(pyfiglet.figlet_format(" Car Racer!!! ", font="doom"),
+                           'white', 'on_green', attrs=['bold'])  # Game banner with game is loaded
     print(ascii_banner)
     while True:
         try:
-            username = input(colored("Please enter your name: ",'blue',attrs=['bold'])) # Players username
+            username = input(colored("Please enter your name: ",
+                             'blue', attrs=['bold']))  # Players username
             if username and len(username) >= 3:
-                typing_print(f'Hi {username} and welcome to Car Racer \n')                
-                break            
-        except:            
+                typing_print(f'Hi {username} and welcome to Car Racer \n')
+                break
+        except:
             raise
         print(f'Name is either blank or too short. Please try again.')
-    
-    
 
     while True:
         try:
             # Checking with player if they want to start the game.
-            start_game = input(colored('Are you ready to play? (Y/N) ','blue',attrs=['bold'])) 
+            start_game = input(
+                colored('Are you ready to play? (Y/N) ', 'blue', attrs=['bold']))
             if start_game.lower() == 'y':
                 print(f'\n {username}, get ready to race!! \n')
-                position = 0 # setting starting point for the car                              
-                player_car(position)
-                
-                random_text = get_randomtext()
-                compare_text(random_text)  
-                                        
+                position = 0  # setting starting point for the car
+                finishline = 74  # setting position of the middle finish line
+                player_car(position, finishline)
+                game_play(position ,finishline ,0)
+
                 break
             elif start_game.lower() == "n":
                 end_game()
                 break
         except:
             raise
-        print(f'\nYou have enter "{start_game}" which is an invalid input. Please select Y or N')
-     
+        print(
+            f'\nYou have enter "{start_game}" which is an invalid input. Please select Y or N')
 
- 
+def game_play(position ,finishline ,x):
+    print(x)
+    random_text = get_randomtext()
+    compare_text(random_text ,position ,finishline , x)
+
+
+
 def end_game():
     """
     Notification to the user that the game as ended or been chosen not to run.
@@ -156,35 +179,58 @@ def end_game():
     print('Thank you for choosing Car Racer')
 
     while True:
-            try:
-                restart_game = input(colored('Do you want to restart the game? (Y/N) ','blue',attrs=['bold'])) # Checking with player if they want to start the game.
-                if restart_game.lower() == 'y':
-                    cls()
-                    main()
-                    break
-                elif restart_game.lower() == "n":
-                    print('We sad to see you go. Hope you enjoyed the game')
-                    return False
-                                              
-            except:
-                raise
-            print(f'you have enter "{restart_game}" which is an invalid input. Please select Y or N')
+        try:
+            # Checking with player if they want to start the game.
+            restart_game = input(
+                colored('Do you want to restart the game? (Y/N) ', 'blue', attrs=['bold']))
+            if restart_game.lower() == 'y':
+                cls()
+                main()
+                break
+            elif restart_game.lower() == "n":
+                print('We sad to see you go. Hope you enjoyed the game')
+                return False
+
+        except:
+            raise
+        print(
+            f'you have enter "{restart_game}" which is an invalid input. Please select Y or N')
 
 
-
-def road_layout():
-    """
-    Building the road layout where the car with drive in
-    """
-    
-def player_car(position):
+def player_car(position, finishline):
     """
     Defining how the player car look.
-    """    
+    """
 
     car = "|o==o>"
     finish = "||||"
-    
-    print(colored(f'{finish : >81}\n {car: <{position}}{finish : >74}\n {finish : >80}','red'))
+
+    print(colored(f'{finish : >81}\n {car: >{position}}\n {finish : >80}', 'red'))
+
+racecomplete = """
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣿⣿⠋⠐⢢⣤⡀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠁⢀⣿⣷⡦⠾⣿⣿⠗⢄⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣶⠶⠤⣤⣴⣿⡿⠋⠛⣿⡁⠀⢨⣯⡀⠈⣧⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣶⣴⠟⠁⣩⣷⣤⣴⣿⣿⡶⢿⣿⡷⢾⣿⣧⡀
+⠀⠀⠀⠀⠀⠀⠀⢠⣾⣿⠛⠻⣿⣿⣷⠖⠻⣿⠋⠀⢙⣏⠀⠀⣻⠀⠀⢹⠋⣣
+⠀⠀⠀⠀⠀⠀⡠⠛⢻⣧⡤⠊⢉⣽⣧⣄⣴⣿⣷⡤⣿⣿⣷⢼⣿⣷⢴⣿⡶⠁
+⠀⠀⠀⠀⢀⣬⣄⣠⣾⣇⢈⣽⣿⣿⡿⠁⠀⢙⣏⠀⠈⣻⡁⠀⢹⡃⠈⡟⠀⠀
+⠀⠀⠀⣰⣿⣿⡟⠀⠀⣽⣿⣿⠟⠉⢻⠶⣤⣾⣿⣷⢴⣿⣷⣤⣿⣧⠌⠀⠀⠀
+⠀⣠⣂⣀⣠⣾⣿⡿⠚⠿⡿⠉⢑⣤⣾⣧⣨⣿⣿⠃⠀⠹⠟⠈⢿⠃⠀⠀⠀⠀
+⠈⠉⠀⠀⠀⠉⠙⠳⢄⣴⣿⡦⣾⣿⣿⠋⣹⠋⠉⢢⢠⣾⣧⡰⠁⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⡁⠀⣽⣿⠜⠁⠀⠀⡜⣿⣿⠟⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠚⠛⠋⠀⠀⠀⡸⣻⠿⠋⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠜⡵⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⢊⡞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⣡⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠜⡴⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣾⠞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⡿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⢠⣾⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⣰⣿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⢀⣼⡿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⢾⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"""
 
 main()
+
