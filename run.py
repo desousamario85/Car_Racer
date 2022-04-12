@@ -94,34 +94,40 @@ def typing_input(text):
     return value
 
 
-def compare_text(sourcetext ,position ,finishline ,x):
-    print(sourcetext)
-    usertext = input()
-    startTime = time.time()
+def compare_text(sourcetext ,position ,finishline ,x ,startTime , retries):
+    print(colored(sourcetext,'yellow'))
+    usertext = input()    
     try:x
     except NameError:x = 0
-    print(x)
+
     while True:
         try:
             if sourcetext == usertext and  x < 4:
-                
-                print(x)
                 x = x + 1                              
-                print(x)    
                 position += 15                   
                 timeElapsed = time.time() - startTime
                 print(f'Current time lapse = {timeElapsed} seconds')                                      
                 player_car(position ,finishline)
-                game_play(position ,finishline,x)
-            else:
+                game_play(position ,finishline ,x ,startTime )
+            elif x == 4:
                 cls()
                 print(racecomplete)
-                break                                         
-                
+                break                                    
         except:
             raise
-        print(f'Text did not match, try again')
-        break
+        if retries < 3:
+            retries = retries + 1
+            print(colored(f'Text did not match, try again','white', 'on_red'))
+            game_play(position ,finishline ,x ,startTime,retries)          
+
+            break
+        else:
+            typing_print("Sorry you have exceed the amount of tries")            
+            typing_print("We hope you enjoyed the game.")
+            typing_print("We are restarting the game")
+            time.sleep(5.00)
+            cls()
+            main()
 
 
 def main():
@@ -153,8 +159,10 @@ def main():
                 print(f'\n {username}, get ready to race!! \n')
                 position = 0  # setting starting point for the car
                 finishline = 74  # setting position of the middle finish line
+                startTime = time.time()
                 player_car(position, finishline)
-                game_play(position ,finishline ,0)
+                retries = 0  
+                game_play(position ,finishline ,0 ,startTime , retries)
 
                 break
             elif start_game.lower() == "n":
@@ -165,10 +173,9 @@ def main():
         print(
             f'\nYou have enter "{start_game}" which is an invalid input. Please select Y or N')
 
-def game_play(position ,finishline ,x):
-    print(x)
+def game_play(position ,finishline ,x ,startTime , retries):    
     random_text = get_randomtext()
-    compare_text(random_text ,position ,finishline , x)
+    compare_text(random_text ,position ,finishline , x, startTime ,retries)
 
 
 
@@ -196,6 +203,13 @@ def end_game():
         print(
             f'you have enter "{restart_game}" which is an invalid input. Please select Y or N')
 
+
+def game_instructions():
+    """
+    Explaination on the game rules and how to play the game
+
+    """
+    typing_print("Test your typing skills by typing out the random text that appears on the screen")
 
 def player_car(position, finishline):
     """
