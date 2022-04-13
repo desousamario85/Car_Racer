@@ -40,6 +40,17 @@ def cls():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
+def update_leaderboard(username, time_elapsed):
+    """
+    Inserting the players time into the google sheet.
+    """
+    format_float = "{:.2f}".format(time_elapsed) #limiting float to 2 decimals
+    worksheet_to_update = SHEET.worksheet("scorecard")
+    print("Updating scorecard...")
+    data = [username, format_float]
+    worksheet_to_update.append_row(data)
+
+
 def get_leaderboard_data():
     """
     Getting leaderboard data to compare current user score.
@@ -87,7 +98,7 @@ def typing_input(text):
     return value
 
 
-def compare_text(source_text, position, finish_line, successfully_entries,
+def compare_text(source_text, position, successfully_entries,
                  start_time, retries):
 
     """
@@ -108,31 +119,36 @@ def compare_text(source_text, position, finish_line, successfully_entries,
             if source_text == usertext and successfully_entries < 4:
                 successfully_entries = successfully_entries + 1
                 position += 15
-                timeElapsed = time.time() - start_time
-                print(f'Current time lapse = {timeElapsed} seconds')
-                player_car(position, finish_line)
-                game_play(position, finish_line, successfully_entries,
+                time_elapsed = time.time() - start_time
+                print(f'Current time lapse = {time_elapsed} seconds')
+                player_car(position)
+                game_play(position, successfully_entries,
                           start_time, retries)
             elif successfully_entries == 4:
+                time_elapsed = time.time() - start_time
                 cls()
                 print(RACE_COMPLETE)
+                print(f'Well done. Your total time is {time_elapsed}')
+                update_leaderboard(username, time_elapsed)
+                end_game()
                 break
         except:
             raise
         if retries < 2:
             retries = retries + 1
-            print(colored(f'Text did not match, try again','white', 'on_red'))
-            game_play(position, finish_line, successfully_entries, start_time,
+            print(colored("Text did not match, try again", "white", "on_red"))
+            game_play(position, successfully_entries, start_time,
                       retries)
 
             break
         else:
-            typing_print("Sorry you have exceed the amount of tries. \n")            
+            typing_print("Sorry you have exceed the amount of tries. \n")
             typing_print("We hope you enjoyed the game. \n")
             typing_print("We are restarting the game \n")
             time.sleep(5.00)
             cls()
             main()
+
 
 def main():
     """
@@ -144,6 +160,7 @@ def main():
                            'white', 'on_green', attrs=['bold'])
     print(ascii_banner)
     typing_print(GAME_INSTRUCTIONS)
+    global username
     while True:
         try:
             username = input(colored("Please enter your name: ",
@@ -154,39 +171,73 @@ def main():
         except:
             raise
         print("Name is either blank or too short. Please try again.")
+    
+    while True:
+            try:
+                option_selected = input(colored("\n1. Play Game \n2. View Leaderboard\n"
+                                        , "blue",attrs=['bold']))
+                if int(option_selected) == 1:
+                    start_game()
+                    break
+                elif int(option_selected) == 2:
+                    get_leaderboard_data()
+                    continue
+                else:
+                    print(colored(
+                    f'\nYou have enter ({option_selected}) which is an invalid input.'
+                    f' Please select 1 or 2\n',"white","on_red"))
+                    continue
+            except ValueError:
+                print(colored(
+                    f'\nYou have enter ({option_selected}) which is an invalid input.'
+                    f' Please select 1 or 2\n',"white","on_red"))
+                continue                  
+                
+            return True
 
+def game_play(position, successfully_entries,
+              start_time, retries):
+    """
+    Here we are Displaying the random text obtained from the API
+    The data is sent to the next function for comparison.
+    """
+    random_text = get_randomtext()
+    compare_text(random_text, position,
+                 successfully_entries, start_time, retries)
+
+
+def start_game():
+    """
+    Checking to see if the player is ready to play and kicking off the game.
+    """
     while True:
         try:
-            # Checking with player if they want to start the game.
-            start_game = input(
-                colored('Are you ready to play? (Y/N) ', 'blue', attrs=['bold']))
-            if start_game.lower() == 'y':                
-                print(f'\n {username}, get ready to race!! \n')        
-                for int in range(3, 0, -1):
-                    print(int)
+        # Checking with player if they want to start the game.
+            start_game = input(colored('Are you ready to play? (Y/N) ',
+                               'blue', attrs=['bold']))
+            if start_game.lower() == 'y':
+                print(f'\n {username}, get ready to race!! \n')
+                for i in range(3, 0, -1):
+                    print(i)
                     time.sleep(1.00)
-        
-                print(colored("GO!!","green"))
-                position = 0  # setting starting point for the car
-                finish_line = 74  # setting position of the middle finish line
-                start_time = time.time()
-                player_car(position, finish_line)
-                retries = 0
-                
-                game_play(position, finish_line, 0, start_time, retries)
-
-                break
+                    print(colored("GO!!", "green"))
+                    position = 0  # setting starting point for the car
+                    start_time = time.time()
+                    player_car(position)
+                    retries = 0
+                    game_play(position, 0, start_time, retries)
+                    break
             elif start_game.lower() == "n":
                 end_game()
                 break
         except:
             raise
         print(
-            f'\nYou have enter "{start_game}" which is an invalid input. Please select Y or N')
+              f'\nYou have enter ({start_game}) which is an invalid input.'
+              f' Please select Y or N')
 
-def game_play(position, finish_line, successfully_entries, start_time, retries):
-    random_text = get_randomtext()
-    compare_text(random_text ,position ,finish_line , successfully_entries, start_time ,retries)
+
+
 
 def end_game():
     """
@@ -198,7 +249,8 @@ def end_game():
         try:
             # Checking with player if they want to start the game.
             restart_game = input(
-                colored('Do you want to restart the game? (Y/N) ', 'blue', attrs=['bold']))
+                colored('Do you want to restart the game? (Y/N) ', 'blue',
+                        attrs=['bold']))
             if restart_game.lower() == 'y':
                 cls()
                 main()
@@ -208,7 +260,8 @@ def end_game():
                 return False
         except:
             raise
-        print(f'you have enter {restart_game} which is an invalid input. Please select Y or N')
+        print(f'you have enter {restart_game} which is an invalid input.'
+              f' Please select Y or N')
 
 
 GAME_INSTRUCTIONS = """
@@ -220,7 +273,8 @@ then after the game will end and restart from the beginning
 Good luck!!
 """
 
-def player_car(position, finish_line):
+
+def player_car(position):
     """
     Defining how the player car look.
     """
@@ -257,5 +311,6 @@ RACE_COMPLETE = """
 ⠀⠀⠀⠀⠀⠀⣰⣿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⢀⣼⡿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⢾⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"""
+
 
 main()
