@@ -1,29 +1,20 @@
-
 # Importing required modules into the project
 
 import gspread
 from google.oauth2.service_account import Credentials
 
 # Allowing to display text in colour easier
-from termcolor import colored, cprint
+from termcolor import colored
 
 # Basic python function
 import os
 import sys
-from sys import exit
 
 # module needed to convert normal text to banner looking heading
 import pyfiglet
 
-# Used to get keystroke as input for race
-
-import keyboard
-
 # Used to calculate time taken to complete the race
-
 import time
-import curses
-from curses import wrapper
 import requests
 
 
@@ -56,6 +47,8 @@ def get_leaderboard_data():
     """
     scorecard = SHEET.worksheet("scorecard").get_all_values()
     print(scorecard)
+    for line in scorecard:
+        print(*line)
 
 
 def get_randomtext():
@@ -94,31 +87,43 @@ def typing_input(text):
     return value
 
 
-def compare_text(sourcetext ,position ,finishline ,x ,startTime , retries):
-    print(colored(sourcetext,'yellow'))
-    usertext = input()    
-    try:x
-    except NameError:x = 0
+def compare_text(source_text, position, finish_line, successfully_entries,
+                 start_time, retries):
+
+    """
+    Function checks to see if the entered text matches the random
+    text received by the API (https://api.quotable.io/random').
+    If they match they move on, if they don't match the retries
+    count start. After 3 tries the game will restart
+    """
+    print(colored(source_text, 'yellow'))
+    usertext = input()
+    try:
+        successfully_entries
+    except NameError:
+        successfully_entries = 0
 
     while True:
         try:
-            if sourcetext == usertext and  x < 4:
-                x = x + 1                              
-                position += 15                   
-                timeElapsed = time.time() - startTime
-                print(f'Current time lapse = {timeElapsed} seconds')                                      
-                player_car(position ,finishline)
-                game_play(position ,finishline ,x ,startTime )
-            elif x == 4:
+            if source_text == usertext and successfully_entries < 4:
+                successfully_entries = successfully_entries + 1
+                position += 15
+                timeElapsed = time.time() - start_time
+                print(f'Current time lapse = {timeElapsed} seconds')
+                player_car(position, finish_line)
+                game_play(position, finish_line, successfully_entries,
+                          start_time, retries)
+            elif successfully_entries == 4:
                 cls()
-                print(racecomplete)
-                break                                    
+                print(RACE_COMPLETE)
+                break
         except:
             raise
-        if retries < 3:
+        if retries < 2:
             retries = retries + 1
             print(colored(f'Text did not match, try again','white', 'on_red'))
-            game_play(position ,finishline ,x ,startTime,retries)          
+            game_play(position, finish_line, successfully_entries, start_time,
+                      retries)
 
             break
         else:
@@ -129,27 +134,26 @@ def compare_text(sourcetext ,position ,finishline ,x ,startTime , retries):
             cls()
             main()
 
-
 def main():
     """
     Starts the game function, requesting users name,
      calling other function to insert scores
     """
-
-    ascii_banner = colored(pyfiglet.figlet_format(" Car Racer!!! ", font="doom"),
-                           'white', 'on_green', attrs=['bold'])  # Game banner with game is loaded
+# Game banner with game is loaded
+    ascii_banner = colored(pyfiglet.figlet_format(" Car Racer ", font="doom"),
+                           'white', 'on_green', attrs=['bold'])
     print(ascii_banner)
-    typing_print(game_instructions)
+    typing_print(GAME_INSTRUCTIONS)
     while True:
         try:
             username = input(colored("Please enter your name: ",
                              'blue', attrs=['bold']))  # Players username
             if username and len(username) >= 3:
                 typing_print(f'Hi {username} and welcome to Car Racer \n')
-                break
+            break
         except:
             raise
-        print(f'Name is either blank or too short. Please try again.')
+        print("Name is either blank or too short. Please try again.")
 
     while True:
         try:
@@ -157,22 +161,19 @@ def main():
             start_game = input(
                 colored('Are you ready to play? (Y/N) ', 'blue', attrs=['bold']))
             if start_game.lower() == 'y':                
-                
                 print(f'\n {username}, get ready to race!! \n')        
-          
-
-                for int in range(3,0,-1):
+                for int in range(3, 0, -1):
                     print(int)
                     time.sleep(1.00)
         
                 print(colored("GO!!","green"))
                 position = 0  # setting starting point for the car
-                finishline = 74  # setting position of the middle finish line
-                startTime = time.time()
-                player_car(position, finishline)
+                finish_line = 74  # setting position of the middle finish line
+                start_time = time.time()
+                player_car(position, finish_line)
                 retries = 0
                 
-                game_play(position ,finishline ,0 ,startTime , retries)
+                game_play(position, finish_line, 0, start_time, retries)
 
                 break
             elif start_game.lower() == "n":
@@ -183,11 +184,9 @@ def main():
         print(
             f'\nYou have enter "{start_game}" which is an invalid input. Please select Y or N')
 
-def game_play(position ,finishline ,x ,startTime , retries):    
+def game_play(position, finish_line, successfully_entries, start_time, retries):
     random_text = get_randomtext()
-    compare_text(random_text ,position ,finishline , x, startTime ,retries)
-
-
+    compare_text(random_text ,position ,finish_line , successfully_entries, start_time ,retries)
 
 def end_game():
     """
@@ -207,25 +206,21 @@ def end_game():
             elif restart_game.lower() == "n":
                 print('We sad to see you go. Hope you enjoyed the game')
                 return False
-
         except:
             raise
-        print(
-            f'you have enter "{restart_game}" which is an invalid input. Please select Y or N')
+        print(f'you have enter {restart_game} which is an invalid input. Please select Y or N')
 
 
-game_instructions ="""
+GAME_INSTRUCTIONS = """
 Welcome to Car Racer
 
-Test your typing skills by typing out the random text that appears on the screen.
-You have 3 retries in total through out the game, then after the game will end and restart from the beginning
+Test your typing skills by typing the random text appearing on the screen.
+You have 3 retries in total through out the game,
+then after the game will end and restart from the beginning
 Good luck!!
 """
-    
 
-
-
-def player_car(position, finishline):
+def player_car(position, finish_line):
     """
     Defining how the player car look.
     """
@@ -233,9 +228,12 @@ def player_car(position, finishline):
     car = "|o==o>"
     finish = "||||"
 
-    print(colored(f'{finish : >81}\n {car: >{position}}\n {finish : >80}', 'red'))
+    print(colored(f'{finish : >81}\n {car: >{position}}\n {finish : >80}',
+                  'red'))
 
-racecomplete = """
+
+RACE_COMPLETE = """
+
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣿⣿⠋⠐⢢⣤⡀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠁⢀⣿⣷⡦⠾⣿⣿⠗⢄⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣶⠶⠤⣤⣴⣿⡿⠋⠛⣿⡁⠀⢨⣯⡀⠈⣧⠀⠀
@@ -261,4 +259,3 @@ racecomplete = """
 ⠀⠀⠀⠀⢾⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"""
 
 main()
-
