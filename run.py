@@ -136,7 +136,8 @@ def compare_text(source_text, position, successfully_entries,
                 time_elapsed = time.time() - start_time
                 cls()
                 print(RACE_COMPLETE)
-                print(f'Well done. Your total time is {time_elapsed}')
+                time_float = "{:.2f}".format(time_elapsed)
+                print(f'Well done. Your total time is {time_float} seconds')
                 update_leaderboard(username, time_elapsed)
                 end_game()
                 break
@@ -144,7 +145,8 @@ def compare_text(source_text, position, successfully_entries,
                 successfully_entries = successfully_entries + 1
                 position += 18
                 time_elapsed = time.time() - start_time
-                print(f'\n Current time lapse = {time_elapsed} seconds')
+                time_float = "{:.2f}".format(time_elapsed)
+                print(f'\n Current time lapse = {time_float} seconds')
                 player_car(position)
                 game_play(position, successfully_entries,
                           start_time, retries, username)
@@ -310,29 +312,18 @@ def player_car(position):
 
 RACE_COMPLETE = """
 
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣿⣿⠋⠐⢢⣤⡀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠁⢀⣿⣷⡦⠾⣿⣿⠗⢄⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣶⠶⠤⣤⣴⣿⡿⠋⠛⣿⡁⠀⢨⣯⡀⠈⣧⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣶⣴⠟⠁⣩⣷⣤⣴⣿⣿⡶⢿⣿⡷⢾⣿⣧⡀
-⠀⠀⠀⠀⠀⠀⠀⢠⣾⣿⠛⠻⣿⣿⣷⠖⠻⣿⠋⠀⢙⣏⠀⠀⣻⠀⠀⢹⠋⣣
-⠀⠀⠀⠀⠀⠀⡠⠛⢻⣧⡤⠊⢉⣽⣧⣄⣴⣿⣷⡤⣿⣿⣷⢼⣿⣷⢴⣿⡶⠁
-⠀⠀⠀⠀⢀⣬⣄⣠⣾⣇⢈⣽⣿⣿⡿⠁⠀⢙⣏⠀⠈⣻⡁⠀⢹⡃⠈⡟⠀⠀
-⠀⠀⠀⣰⣿⣿⡟⠀⠀⣽⣿⣿⠟⠉⢻⠶⣤⣾⣿⣷⢴⣿⣷⣤⣿⣧⠌⠀⠀⠀
-⠀⣠⣂⣀⣠⣾⣿⡿⠚⠿⡿⠉⢑⣤⣾⣧⣨⣿⣿⠃⠀⠹⠟⠈⢿⠃⠀⠀⠀⠀
-⠈⠉⠀⠀⠀⠉⠙⠳⢄⣴⣿⡦⣾⣿⣿⠋⣹⠋⠉⢢⢠⣾⣧⡰⠁⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⡁⠀⣽⣿⠜⠁⠀⠀⡜⣿⣿⠟⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠚⠛⠋⠀⠀⠀⡸⣻⠿⠋⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠜⡵⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⢊⡞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⣡⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠜⡴⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣾⠞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⡿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⢠⣾⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⣰⣿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⢀⣼⡿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⢾⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"""
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣿⣄⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⢀⡔⢺⣿⣿⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣿⣿⡗⠢⡀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⢷⣶⡟⠉⢻⣷⡀⠀⠀⠀⠀⠀⠀⠀⣾⡿⠉⢻⣶⡾⠁⠀⠀⠀⠀
+⣠⣤⣴⠖⠒⠹⣿⣷⣀⣸⣿⣧⠀⠀⠀⠀⠀⠀⣸⣿⣇⣀⣾⣿⠏⠒⠲⣶⣤⣄
+⢹⣿⣿⡄⠀⣀⡝⠁⠘⣿⣿⣿⡆⠀⠀⠀⠀⢠⣿⣿⣿⠏⠈⢻⣀⠀⢠⣿⣿⡏
+⠀⢃⠀⠘⣿⣿⣿⣄⣠⡟⠉⢿⣿⡀⠀⠀⠀⣾⡿⠉⢹⣄⣀⣿⣿⣿⠃⠀⡸⠀
+⠀⠈⣦⣴⣾⠉⠁⠈⣿⣷⠀⠈⣿⣷⠀⠀⣼⣿⠃⠀⣾⣿⠃⠈⠉⣹⣦⣴⠁⠀
+⠀⠀⠸⣿⣿⡦⠤⠐⠋⠁⠀⠀⠸⣿⣇⢰⣿⡏⠀⠀⠈⠙⠂⠤⢴⣿⣿⠇⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢿⡿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+
+"""
 
 
 main()
