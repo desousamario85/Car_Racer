@@ -6,6 +6,10 @@ from google.oauth2.service_account import Credentials
 # Allowing to display text in colour easier
 from termcolor import colored
 
+#Pandas for dataframe to sort leaderboard data
+import pandas as pd
+import numpy as np
+
 # Basic python function
 import os
 import sys
@@ -53,13 +57,16 @@ def update_leaderboard(username, time_elapsed):
 
 def get_leaderboard_data():
     """
-    Getting leaderboard data to compare current user score.
-    Add users to leaderboard and then display their position.
+    Getting leaderboard data to display top 10 players
     """
-    scorecard = SHEET.worksheet("scorecard").get_all_values()
-    print(scorecard)
-    for line in scorecard:
-        print(*line)
+    scorecard = SHEET.worksheet("scorecard").get_all_records()
+    df = pd.DataFrame(scorecard)
+    df_converted_col = df.astype({'Score':'float'})
+    df_top_10 = df_converted_col.sort_values('Score',ascending=False).head(10)
+    df_indexed = df_top_10.reset_index(drop=True)
+    df_indexed.index = np.arange(1, len(df_indexed) + 1)
+    df_indexed.index.name = 'Rank'
+    print(df_indexed)
 
 
 def get_randomtext():
@@ -132,7 +139,7 @@ def compare_text(source_text, position, successfully_entries,
                 update_leaderboard(username, time_elapsed)
                 end_game()
                 break
-        except:
+        except ValueError():
             raise
         if retries < 2:
             retries = retries + 1
@@ -171,7 +178,6 @@ def main():
         except:
             raise
         print("Name is either blank or too short. Please try again.")
-    
     while True:
             try:
                 option_selected = input(colored("\n1. Play Game \n2. View Leaderboard\n"
@@ -191,9 +197,9 @@ def main():
                 print(colored(
                     f'\nYou have enter ({option_selected}) which is an invalid input.'
                     f' Please select 1 or 2\n',"white","on_red"))
-                continue                  
-                
+                continue
             return True
+
 
 def game_play(position, successfully_entries,
               start_time, retries):
