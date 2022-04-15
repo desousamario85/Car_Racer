@@ -1,26 +1,27 @@
-# Importing required modules into the project
+"""Simple Python game to test the player typing skills."""
+# Basic python function
+import os
+import sys
 
+# Used to calculate time taken to complete the race
+import time
+
+# module needed to convert normal text to banner looking heading
+import pyfiglet
+
+# Used to send API calls.
+import requests
+
+# Google modules
 import gspread
 from google.oauth2.service_account import Credentials
 
 # Allowing to display text in colour easier
 from termcolor import colored
 
-#Pandas for dataframe to sort leaderboard data
+# Pandas for dataframe to sort leaderboard data
 import pandas as pd
 import numpy as np
-
-# Basic python function
-import os
-import sys
-
-# module needed to convert normal text to banner looking heading
-import pyfiglet
-
-# Used to calculate time taken to complete the race
-import time
-import requests
-
 
 # Standard Google Drive Scope to access files in our google drive.
 SCOPE = [
@@ -44,29 +45,21 @@ def cls():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def update_leaderboard(username, time_elapsed):
-    """
-    Inserting the players time into the google sheet.
-    """
-    format_float = "{:.2f}".format(time_elapsed) #limiting float to 2 decimals
-    worksheet_to_update = SHEET.worksheet("scorecard")
-    print("Updating scorecard...")
-    data = [username, format_float]
-    worksheet_to_update.append_row(data)
-
-
 def get_leaderboard_data():
     """
     Getting leaderboard data to display top 10 players
+    The records are obtained, then the Score column is converted in int
+    There after the we are able to sort the scores. The index column
+    is renamed and increase by to start from 1 and not 0
     """
     scorecard = SHEET.worksheet("scorecard").get_all_records()
-    df = pd.DataFrame(scorecard)
-    df_converted_col = df.astype({'Score':'float'})
-    df_top_10 = df_converted_col.sort_values('Score',ascending=False).head(10)
-    df_indexed = df_top_10.reset_index(drop=True)
-    df_indexed.index = np.arange(1, len(df_indexed) + 1)
-    df_indexed.index.name = 'Rank'
-    print(df_indexed)
+    leaders = pd.DataFrame(scorecard)
+    leaders_float = leaders.astype({'Score': 'float'})
+    leaders_t10 = leaders_float.sort_values('Score', ascending=False).head(10)
+    leaders_indexed = leaders_t10.reset_index(drop=True)
+    leaders_indexed.index = np.arange(1, len(leaders_indexed) + 1)
+    leaders_indexed.index.name = 'Rank'
+    print(leaders_indexed)
 
 
 def get_randomtext():
@@ -107,7 +100,6 @@ def typing_input(text):
 
 def compare_text(source_text, position, successfully_entries,
                  start_time, retries):
-
     """
     Function checks to see if the entered text matches the random
     text received by the API (https://api.quotable.io/random').
@@ -131,7 +123,7 @@ def compare_text(source_text, position, successfully_entries,
                 player_car(position)
                 game_play(position, successfully_entries,
                           start_time, retries)
-            elif successfully_entries == 4:
+            elif source_text == usertext and successfully_entries == 4:
                 time_elapsed = time.time() - start_time
                 cls()
                 print(RACE_COMPLETE)
@@ -139,66 +131,70 @@ def compare_text(source_text, position, successfully_entries,
                 update_leaderboard(username, time_elapsed)
                 end_game()
                 break
-        except ValueError():
-            raise
-        if retries < 2:
-            retries = retries + 1
-            print(colored("Text did not match, try again", "white", "on_red"))
-            game_play(position, successfully_entries, start_time,
-                      retries)
-
-            break
-        else:
-            typing_print("Sorry you have exceed the amount of tries. \n")
-            typing_print("We hope you enjoyed the game. \n")
-            typing_print("We are restarting the game \n")
-            time.sleep(5.00)
+            elif source_text != usertext and retries < 2:
+                retries = retries + 1
+                print(colored("Text did not match, please try again"
+                              " with new text below", "white", "on_red"))
+                game_play(position, successfully_entries, start_time,
+                          retries)
+                break
+            else:
+                typing_print("Sorry you have exceed the amount of tries. \n")
+                typing_print("We hope you enjoyed the game. \n")
+                typing_print("We will restart the game in just a moment \n")
+                time.sleep(5.00)
+                cls()
+                main()
+                break
+        except NameError:
+            print("Something went wrong. We are restarting the game")
             cls()
             main()
+            return True
 
 
 def main():
     """
     Starts the game function, requesting users name,
-     calling other function to insert scores
+    calling other function to insert scores
     """
-# Game banner with game is loaded
+    # Game banner with game is loaded
     ascii_banner = colored(pyfiglet.figlet_format(" Car Racer ", font="doom"),
                            'white', 'on_green', attrs=['bold'])
     print(ascii_banner)
-    typing_print(GAME_INSTRUCTIONS)
-    global username
     while True:
         try:
             username = input(colored("Please enter your name: ",
                              'blue', attrs=['bold']))  # Players username
             if username and len(username) >= 3:
-                typing_print(f'Hi {username} and welcome to Car Racer \n')
+                typing_print(f'Hi {username} and welcome to Car Racer')
+                typing_print(GAME_INSTRUCTIONS)
             break
-        except:
-            raise
-        print("Name is either blank or too short. Please try again.")
+        except NameError:
+            print("Name is either blank or too short. Please try again.")
     while True:
-            try:
-                option_selected = input(colored("\n1. Play Game \n2. View Leaderboard\n"
-                                        , "blue",attrs=['bold']))
-                if int(option_selected) == 1:
-                    start_game()
-                    break
-                elif int(option_selected) == 2:
-                    get_leaderboard_data()
-                    continue
-                else:
-                    print(colored(
-                    f'\nYou have enter ({option_selected}) which is an invalid input.'
-                    f' Please select 1 or 2\n',"white","on_red"))
-                    continue
-            except ValueError:
-                print(colored(
-                    f'\nYou have enter ({option_selected}) which is an invalid input.'
-                    f' Please select 1 or 2\n',"white","on_red"))
+        try:
+            option_selected = input(
+                colored("\n1. Play Game \n2. View Leaderboard\n", "blue",
+                        attrs=['bold']))
+            if int(option_selected) == 1:
+                start_game(username)
+                break
+            elif int(option_selected) == 2:
+                get_leaderboard_data()
                 continue
-            return True
+            else:
+                print(colored(
+                    f'\n You have enter ({option_selected}) which is an'
+                    f' invalid input. Please select 1 or 2\n',
+                    "white", "on_red"))
+                continue
+        except ValueError:
+            print(colored(
+                f'\nYou have enter ({option_selected}) which is an invalid'
+                f' input. Please select 1 or 2\n', "white", "on_red"))
+            continue
+        return True
 
 
 def game_play(position, successfully_entries,
@@ -212,37 +208,34 @@ def game_play(position, successfully_entries,
                  successfully_entries, start_time, retries)
 
 
-def start_game():
+def start_game(username):
     """
     Checking to see if the player is ready to play and kicking off the game.
     """
     while True:
         try:
-        # Checking with player if they want to start the game.
-            start_game = input(colored('Are you ready to play? (Y/N) ',
-                               'blue', attrs=['bold']))
-            if start_game.lower() == 'y':
+            # Checking with player if they want to start the game.
+            start_game_option = input(colored('Are you ready to play? (Y/N) ',
+                                      'blue', attrs=['bold']))
+            if start_game_option.lower() == 'y':
                 print(f'\n {username}, get ready to race!! \n')
                 for i in range(3, 0, -1):
                     print(i)
                     time.sleep(1.00)
-                    print(colored("GO!!", "green"))
-                    position = 0  # setting starting point for the car
-                    start_time = time.time()
-                    player_car(position)
-                    retries = 0
-                    game_play(position, 0, start_time, retries)
-                    break
-            elif start_game.lower() == "n":
+                print(colored("GO!!", "green"))
+                position = 0  # setting starting point for the car
+                start_time = time.time()
+                player_car(position)
+                retries = 0
+                game_play(position, 0, start_time, retries)
+                break
+            elif start_game_option.lower() == "n":
                 end_game()
                 break
-        except:
-            raise
-        print(
-              f'\nYou have enter ({start_game}) which is an invalid input.'
-              f' Please select Y or N')
-
-
+        except NameError():
+            print(
+                f'\nYou have enter ({start_game_option}) which is an '
+                f'invalid input. Please select Y or N')
 
 
 def end_game():
@@ -264,18 +257,18 @@ def end_game():
             elif restart_game.lower() == "n":
                 print('We sad to see you go. Hope you enjoyed the game')
                 return False
-        except:
-            raise
-        print(f'you have enter {restart_game} which is an invalid input.'
-              f' Please select Y or N')
+        except NameError():
+            print(
+                f'you have enter {restart_game} which is an invalid input.'
+                f' Please select Y or N')
 
 
 GAME_INSTRUCTIONS = """
-Welcome to Car Racer
 
 Test your typing skills by typing the random text appearing on the screen.
 You have 3 retries in total through out the game,
 then after the game will end and restart from the beginning
+
 Good luck!!
 """
 
@@ -290,6 +283,18 @@ def player_car(position):
 
     print(colored(f'{finish : >81}\n {car: >{position}}\n {finish : >80}',
                   'red'))
+
+
+def update_leaderboard(username, time_elapsed):
+    """
+    Inserting the players time into the google sheet.
+    We limiting float to 2 decimals on the time score
+    """
+    format_float = "{:.2f}".format(time_elapsed)
+    worksheet_to_update = SHEET.worksheet("scorecard")
+    print("Updating scorecard...")
+    data = [username, format_float]
+    worksheet_to_update.append_row(data)
 
 
 RACE_COMPLETE = """
