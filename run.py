@@ -128,8 +128,6 @@ def compare_text(source_text, position, successfully_entries,
         successfully_entries
     except NameError:
         successfully_entries = 0
-    print(successfully_entries)
-
     while True:
         try:
             if successfully_entries == 4:
@@ -151,7 +149,7 @@ def compare_text(source_text, position, successfully_entries,
                 game_play(position, successfully_entries,
                           start_time, retries, username)
                 break
-            elif retries < 2:
+            elif retries < 3:
                 retries = retries + 1
                 print(colored("Text did not match, please try again"
                               " with new text below", "white", "on_red"))
@@ -185,7 +183,7 @@ def main():
         try:
             username = input(colored("Please enter your name: ",
                              'blue', attrs=['bold']))  # Players username
-            if username and len(username) >= 3:
+            if username and len(username.strip()) >= 3:
                 typing_print(f'Hi {username} and Welcome to Car Racer')
                 typing_print(GAME_INSTRUCTIONS)
                 break
@@ -256,10 +254,17 @@ def start_game(username):
             elif start_game_option.lower() == "n":
                 end_game()
                 break
+            else:
+                print(colored(
+                    f'\nYou have enter ({start_game_option}) which is an '
+                    f'invalid input. Please select Y or N',
+                    "white", "on_red"))
+                continue
         except NameError():
-            print(
+            print(colored(
                 f'\nYou have enter ({start_game_option}) which is an '
-                f'invalid input. Please select Y or N')
+                f'invalid input. Please select Y or N',
+                "white", "on_red"))
 
 
 def end_game():
@@ -281,10 +286,16 @@ def end_game():
             elif restart_game.lower() == "n":
                 print('We sad to see you go. Hope you enjoyed the game')
                 return False
+            else:
+                print(colored(
+                    f'you have enter {restart_game} which is an invalid input.'
+                    f' Please select Y or N',
+                    "white", "on_red"))
         except NameError():
-            print(
+            print(colored(
                 f'you have enter {restart_game} which is an invalid input.'
-                f' Please select Y or N')
+                f' Please select Y or N',
+                "white", "on_red"))
 
 
 GAME_INSTRUCTIONS = """
